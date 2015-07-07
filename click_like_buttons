@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+
+require 'open-uri'
+require 'json'
+require 'optparse'
+require 'selenium-webdriver'
+require 'headless'
+
+OPTIONS = {}
+OptionParser.new do |opt|
+  opt.on('-s search_query', '--search_query', String) {|v| OPTIONS[:search_query] = v}
+  opt.on('-m mail_address', '--mail_address', String) {|v| OPTIONS[:mail_address] = v}
+  opt.on('-p password', '--password',         String) {|v| OPTIONS[:password]     = v}
+  opt.on('-l logfile', '--logfile',           String) {|v| OPTIONS[:logfile]      = v}
+  opt.parse!(ARGV)
+end
+
+raise OptionParser::MissingArgument unless OPTIONS[:search_query]
+raise OptionParser::MissingArgument unless OPTIONS[:mail_address]
+raise OptionParser::MissingArgument unless OPTIONS[:password]
+
+def click_like_button(driver, counter)
+  driver.find_element(:xpath, "//div[@class='GridItems Module centeredWithinWrapper padItems variableHeightLayout']/div[#{counter}]").click
+  driver.find_element(:xpath, "//div[@class='repinLike']/button[3]").click
+  driver.navigate.back
+end
+
+headless = Headless.new
+headless.start
+
+driver = Selenium::WebDriver.for :chrome
+
+driver.navigate.to 'https://jp.pinterest.com/'
+driver.find_element(:xpath, "//div[@class='inspiredSearchDialog ']/button").click
+
+driver.save_screenshot("/home/vagrant/dev/#{Time.now.to_s}_unko1.png")
+
+driver.find_element(:xpath, "//li[@class='loginUsername']/input").send_keys(OPTIONS[:mail_address])
+driver.find_element(:xpath, "//li[@class='loginPassword']/input").send_keys(OPTIONS[:password])
+
+driver.save_screenshot("/home/vagrant/dev/#{Time.now.to_s}_unko1.png")
+
+driver.find_element(:xpath, "//div[@class='formFooterButtons']/button").click
+
+driver.navigate.to "https://jp.pinterest.com/search/pins/?q=#{OPTIONS[:search_query]}"
+number_of_nodes = driver.find_elements(:xpath, "//div[@class='GridItems Module centeredWithinWrapper padItems variableHeightLayout']/div").count
+
+for i in 1..number_of_nodes do
+  click_like_button(driver, i)
+end
+
+driver.quit
+headless.destroy
