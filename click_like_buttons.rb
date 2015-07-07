@@ -19,12 +19,12 @@ driver.find_element(:xpath, "//div[@class='inspiredSearchDialog ']/button").clic
 driver.save_screenshot("/home/vagrant/dev/#{Time.now.to_s}_unko1.png")
 
 username = driver.find_element(:xpath, "//li[@class='loginUsername']/input")
-username.send_keys('i.am.eager.for.peace@gmail.com')
+username.send_keys('メールアドレス')
 
 driver.save_screenshot("/home/vagrant/dev/#{Time.now.to_s}_unko2.png")
 
 username = driver.find_element(:xpath, "//li[@class='loginPassword']/input")
-username.send_keys('19924128takahiro')
+username.send_keys('パスワード')
 
 driver.save_screenshot("/home/vagrant/dev/#{Time.now.to_s}_unko3.png")
 
